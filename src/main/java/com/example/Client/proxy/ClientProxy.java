@@ -16,23 +16,13 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
 public class ClientProxy implements InvocationHandler {
-    private String host;
-    private int port;
+
     private RpcClient rpcClient;
-    public ClientProxy(String host, int port, int choose) {
-        switch (choose) {
-            case 0:
-                rpcClient = new NettyRpcClient(host, port);
-                break;
-            case 1:
-                rpcClient = new SimpleSocketRpcClient(host, port);
-        }
-    }
-    public ClientProxy(String host, int port) {
-        rpcClient = new NettyRpcClient(host, port);
+
+    public ClientProxy() {
+        rpcClient = new NettyRpcClient();
     }
 
     @Override
@@ -42,7 +32,7 @@ public class ClientProxy implements InvocationHandler {
                 .methodName(method.getName())
                 .params(args)
                 .paramsType(method.getParameterTypes()).build();
-        RpcResponse response = IOClient.sendRequest(host, port, request);
+        RpcResponse response = rpcClient.sendRequest(request);
         return response.getData();
     }
 
