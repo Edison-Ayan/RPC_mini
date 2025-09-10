@@ -19,15 +19,15 @@ import lombok.NoArgsConstructor;
 
 import java.net.InetSocketAddress;
 
-@Data
-@NoArgsConstructor
 public class NettyRpcClient implements RpcClient {
     private static final Bootstrap bootstrap;//Netty用于启动客户端的对象，负责设置与服务器的链接配置
     private static final EventLoopGroup eventLoopGroup;//Netty的线程池，用于处理I/O操作
     private ServiceCenter serviceCenter;
-    public NettyRpcClient() {
+
+    public NettyRpcClient() throws InterruptedException {
         this.serviceCenter = new ZKServiceCenter();
     }
+
     static {
         eventLoopGroup = new NioEventLoopGroup();
         bootstrap = new Bootstrap();

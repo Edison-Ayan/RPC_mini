@@ -15,13 +15,11 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
-@Data
-@AllArgsConstructor
 public class ClientProxy implements InvocationHandler {
 
     private RpcClient rpcClient;
 
-    public ClientProxy() {
+    public ClientProxy() throws InterruptedException{
         rpcClient = new NettyRpcClient();
     }
 
