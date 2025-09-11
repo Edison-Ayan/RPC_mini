@@ -2,6 +2,7 @@ package com.example.Client.serviceCenter;
 
 import com.example.Client.cache.serviceCache;
 import com.example.Client.serviceCenter.ZkWatcher.watchZK;
+import com.example.Client.serviceCenter.balance.impl.ConsistencyHashBalance;
 import org.apache.curator.RetryPolicy;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
@@ -41,11 +42,9 @@ public class ZKServiceCenter implements ServiceCenter{
                 serviceList = client.getChildren().forPath("/"+serviceName);
             }
             //获取服务名对应路径下的所有子节点，子节点通常保存服务实例的地址
-
-            //Todo:这里默认用第一个后面加负载均衡
-            String string = serviceList.get(0);
+            String address = new ConsistencyHashBalance().balance(serviceList);
             //将子节点解析为InetSocketAddress,便于客户端进行通信
-            return parseAddress(string);
+            return parseAddress(address);
         } catch (Exception e) {
             e.printStackTrace();
         }
