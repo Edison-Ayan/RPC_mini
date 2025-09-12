@@ -13,9 +13,6 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.util.AttributeKey;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.net.InetSocketAddress;
 
@@ -24,7 +21,7 @@ public class NettyRpcClient implements RpcClient {
     private static final EventLoopGroup eventLoopGroup;//Netty的线程池，用于处理I/O操作
     private ServiceCenter serviceCenter;
 
-    public NettyRpcClient() throws InterruptedException {
+    public NettyRpcClient(ServiceCenter serviceCenter) throws InterruptedException {
         this.serviceCenter = new ZKServiceCenter();
     }
 

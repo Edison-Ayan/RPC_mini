@@ -11,6 +11,8 @@ import org.apache.zookeeper.CreateMode;
 import java.net.InetSocketAddress;
 import java.util.List;
 
+import static org.apache.curator.SessionFailRetryLoop.Mode.RETRY;
+
 public class ZKServiceRegister implements ServiceRegister {
     private CuratorFramework client;
     //zookeeper根路径节点
@@ -29,13 +31,17 @@ public class ZKServiceRegister implements ServiceRegister {
     }
 
     @Override
-    public void register(String serviceName, InetSocketAddress serviceAddress) {
+    public void register(String serviceName, InetSocketAddress serviceAddress, boolean canRetry) {
         try {
             if (client.checkExists().forPath("/"+serviceName) == null){
                 client.create().creatingParentsIfNeeded().withMode(CreateMode.PERSISTENT).forPath("/"+serviceName);
             }
             String path = "/" + serviceName + "/" +getServiceAddress(serviceAddress);
             client.create().creatingParentsIfNeeded().withMode(CreateMode.EPHEMERAL).forPath(path);
+            if (canRetry) {
+                path += "/" + RETRY +"/" + serviceName;
+                client.create().creatingParentsIfNeeded().withMode(CreateMode.EPHEMERAL).forPath(path);
+            }
         } catch (Exception e) {
             System.out.println("此服务已存在");
         }

@@ -2,9 +2,12 @@ package com.example.Client.proxy;
 
 import ch.qos.logback.core.net.server.Client;
 import com.example.Client.IOClient;
+import com.example.Client.retry.guavaRetry;
 import com.example.Client.rpcClient.RpcClient;
 import com.example.Client.rpcClient.impl.NettyRpcClient;
 import com.example.Client.rpcClient.impl.SimpleSocketRpcClient;
+import com.example.Client.serviceCenter.ServiceCenter;
+import com.example.Client.serviceCenter.ZKServiceCenter;
 import com.example.common.Message.RpcRequest;
 import com.example.common.Message.RpcResponse;
 import lombok.AllArgsConstructor;
@@ -18,9 +21,12 @@ import java.lang.reflect.Proxy;
 public class ClientProxy implements InvocationHandler {
 
     private RpcClient rpcClient;
+    private ServiceCenter serviceCenter;
 
     public ClientProxy() throws InterruptedException{
-        rpcClient = new NettyRpcClient();
+        serviceCenter = new ZKServiceCenter();
+        rpcClient = new NettyRpcClient(serviceCenter);
+
     }
 
     @Override
@@ -30,7 +36,12 @@ public class ClientProxy implements InvocationHandler {
                 .methodName(method.getName())
                 .params(args)
                 .paramsType(method.getParameterTypes()).build();
-        RpcResponse response = rpcClient.sendRequest(request);
+        RpcResponse response ;
+        if (serviceCenter.checkRetry(request.getInterfaceName())) {
+            response = new guavaRetry().sendServiceWithRetry(request, rpcClient);
+        } else {
+            response = rpcClient.sendRequest(request);
+        }
         return response.getData();
     }
 
