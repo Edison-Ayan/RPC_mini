@@ -1,5 +1,6 @@
 package com.example.Server.provider;
 
+import com.example.Server.ratelimit.provider.RateLimitProvider;
 import com.example.Server.serviceRegister.ServiceRegister;
 import com.example.Server.serviceRegister.impl.ZKServiceRegister;
 import lombok.AllArgsConstructor;
@@ -16,11 +17,13 @@ public class ServiceProvider {
     private int port;
     private String host;
     private ServiceRegister serviceRegister;
+    private RateLimitProvider rateLimitProvider;
     public ServiceProvider(String host, int port) {
         this.interfaceProvider = new HashMap<>();
         this.host = host;
         this.port = port;
         this.serviceRegister = new ZKServiceRegister();
+        this.rateLimitProvider = new RateLimitProvider();
     }
 
     public void provideServiceInterface(Object service, boolean canRetry) {
@@ -35,5 +38,9 @@ public class ServiceProvider {
 
     public Object getService(String interfaceName) {
         return interfaceProvider.get(interfaceName);
+    }
+
+    public RateLimitProvider getRateLimitProvider() {
+        return rateLimitProvider;
     }
 }
